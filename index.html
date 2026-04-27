@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Girl Math Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'cute': ['Fredoka', 'sans-serif'],
+                    },
+                    colors: {
+                        pastel: {
+                            bg: '#ffe4e6',    // Soft pink background
+                            calc: '#fff1f2',  // Very light pink calculator body
+                            display: '#ffffff',// White display
+                            btn: '#fbcfe8',   // Light pink button
+                            btnHover: '#f9a8d4', // Slightly darker pink for hover
+                            btnActive: '#f472b6',// Active button pink
+                            operator: '#fecdd3', // Different shade for operators
+                            equal: '#fb7185',    // Pop of darker pink for equals
+                            text: '#831843',     // Deep pink text for readability
+                            displayTxt: '#9d174d' // Display text color
+                        }
+                    },
+                    boxShadow: {
+                        'cute': '0 10px 25px -5px rgba(251, 113, 133, 0.3), 0 8px 10px -6px rgba(251, 113, 133, 0.2)',
+                        'inner-cute': 'inset 0 4px 6px -1px rgba(251, 113, 133, 0.1)',
+                        'btn': '0 4px 0px 0px rgba(244, 114, 182, 0.4)',
+                        'btn-active': '0 0px 0px 0px rgba(244, 114, 182, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            /* background pattern using radial gradients */
+            background-color: #ffe4e6;
+            background-image: radial-gradient(#fbcfe8 2px, transparent 2px);
+            background-size: 30px 30px;
+        }
+
+        /* Bouncy button effect */
+        .cute-btn {
+            transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .cute-btn:active {
+            transform: translateY(4px);
+            box-shadow: none !important;
+        }
+
+        /* Sparkle animation for equals button */
+        @keyframes sparkle {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        .sparkle-hover:hover {
+            animation: sparkle 0.5s ease-in-out infinite;
+        }
+
+        /* Custom scrollbar for display if needed */
+        ::-webkit-scrollbar {
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fff1f2;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fbcfe8;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center font-cute text-pastel-text p-4 selection:bg-pink-300 selection:text-white">
+
+    <!-- Calculator Container -->
+    <div class="relative bg-pastel-calc p-6 rounded-[2.5rem] shadow-cute w-full max-w-md border-4 border-white backdrop-blur-sm bg-opacity-90">
+        
+        <!-- Decorative elements -->
+        <div class="absolute -top-6 -left-6 text-4xl transform -rotate-12 select-none">🎀</div>
+        <div class="absolute -bottom-4 -right-4 text-4xl transform rotate-12 select-none">🌸</div>
+
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h1 class="text-xl font-semibold tracking-wider text-pink-400">girl math <span class="text-sm text-pink-300"></span></h1>
+        </div>
+
+        <!-- Display -->
+        <div class="bg-pastel-display rounded-3xl p-5 mb-6 shadow-inner-cute border-2 border-pink-100 flex flex-col justify-end items-end break-all h-28 relative overflow-hidden">
+            <div data-previous-operand class="text-pink-300 text-lg min-h-[28px] font-medium tracking-widest w-full text-right overflow-x-auto whitespace-nowrap"></div>
+            <div data-current-operand class="text-pastel-displayTxt text-4xl font-semibold tracking-wide w-full text-right overflow-x-auto whitespace-nowrap">0</div>
+        </div>
+
+        <!-- Buttons Grid -->
+        <div class="grid grid-cols-5 gap-3">
+            <!-- Row 1: Scientific Basics -->
+            <button data-append="sin(" class="cute-btn bg-pink-100 hover:bg-pink-200 text-pink-800 rounded-2xl py-3 text-lg font-medium shadow-btn">sin</button>
+            <button data-append="cos(" class="cute-btn bg-pink-100 hover:bg-pink-200 text-pink-800 rounded-2xl py-3 text-lg font-medium shadow-btn">cos</button>
+            <button data-append="tan(" class="cute-btn bg-pink-100 hover:bg-pink-200 text-pink-800 rounded-2xl py-3 text-lg font-medium shadow-btn">tan</button>
+            <button data-all-clear class="cute-btn bg-pastel-operator hover:bg-pink-200 text-pastel-text rounded-2xl py-3 text-lg font-medium shadow-btn">AC</button>
+            <button data-delete class="cute-btn bg-pastel-operator hover:bg-pink-200 text-pastel-text rounded-2xl py-3 text-lg font-medium shadow-btn">DEL</button>
+
+            <!-- Row 2 -->
+            <button data-append="log(" class="cute-btn bg-pink-100 hover:bg-pink-200 text-pink-800 rounded-2xl py-3 text-lg font-medium shadow-btn">log</button>
+            <button data-append="ln(" class="cute-btn bg-pink-100 hover:bg-pink-200 text-pink-800 rounded-2xl py-3 text-lg font-medium shadow-btn">ln</button>
+            <button data-append="(" class="cute-btn bg-pastel-operator hover:bg-pink-200 text-pastel-text rounded-2xl py-3 text-xl font-medium shadow-btn">(</button>
+            <button data-append=")" class="cute-btn bg-pastel-operator hover:bg-pink-200 text-pastel-text rounded-2xl py-3 text-xl font-medium shadow-btn">)</button>
+            <button data-append="÷" class="cute-btn bg-pastel-operator hover:bg-pink-200 text-pastel-text rounded-2xl py-3 text-2xl font-medium shadow-btn">÷</button>
+
+            <!-- Row 3 -->
+            <button data-append="√(" class="cute-btn bg-pink-100 hover:bg-pink-200 text-pink-800 rounded-2xl py-3 text-xl font-medium shadow-btn">√</button>
+            <button data-append="7" class="cute-btn bg-pastel-btn hover:bg-pastel-btnHover text-pastel-text rounded-2xl py-3 text-2xl font-medium shadow-btn">7</button>
+            <button data-append="8" class="cute-btn bg-pastel-btn hover:bg-pastel-btnHover text-pastel-text rounded-2xl py-3 text-2xl font-medium shadow-btn">8</button>
+            <button data-append="9" class="cute-btn bg-pastel-btn hover:bg-pastel-btnHover text-pastel-text rounded-2xl py-3 text-2xl font-medium shadow-btn">9</button>
+            <button data-append="×" class="cute-btn bg-pastel-operator hover:bg-pink-200 text-pastel-text rounded-2xl py-3 text-2xl font-medium shadow-btn">×</button>
+
+            <!-- Row 4 -->
+            <button data-append="^" class="cute-btn bg-pink-100 hover:bg-pink-200 text-pink-800 rounded-2xl py-3 text-xl font-medium shadow-btn">^</button>
+            <button data-append="4" class="cute-btn bg-pastel-btn hover:bg-pastel-btnHover text-pastel-text rounded-2xl py-3 text-2xl font-medium shadow-btn">4</button>
+            <button data-append="5" class="cute-btn bg-pastel-btn hover:bg-pastel-btnHover text-pastel-text rounded-2xl py-3 text-2xl font-medium shadow-btn">5</button>
+            <button data-append="6" class="cute-btn bg-pastel-btn hover:bg-pastel-btnHover text-pastel-text rounded-2xl py-3 text-2xl font-medium shadow-btn">6</button>
+            <button data-append="-" class="cute-btn bg-pastel-operator hover:bg-pink-200 text-pastel-text rounded-2xl py-3 text-3xl font-medium shadow-btn pb-4">-</button>
+
+            <!-- Row 5 -->
+            <button data-append="π" class="cute-btn bg-pink-100 hover:bg-pink-200 text-pink-800 rounded-2xl py-3 text-xl font-medium shadow-btn">π</button>
+            <button data-append="1" class="cute-btn bg-pastel-btn hover:bg-pastel-btnHover text-pastel-text rounded-2xl py-3 text-2xl font-medium shadow-btn">1</button>
+            <button data-append="2" class="cute-btn bg-pastel-btn hover:bg-pastel-btnHover text-pastel-text rounded-2xl py-3 text-2xl font-medium shadow-btn">2</button>
+            <button data-append="3" class="cute-btn bg-pastel-btn hover:bg-pastel-btnHover text-pastel-text rounded-2xl py-3 text-2xl font-medium shadow-btn">3</button>
+            <button data-append="+" class="cute-btn bg-pastel-operator hover:bg-pink-200 text-pastel-text rounded-2xl py-3 text-2xl font-medium shadow-btn">+</button>
+
+            <!-- Row 6 -->
+            <button data-append="e" class="cute-btn bg-pink-100 hover:bg-pink-200 text-pink-800 rounded-2xl py-3 text-xl font-medium shadow-btn">e</button>
+            <button data-append="0" class="cute-btn col-span-2 bg-pastel-btn hover:bg-pastel-btnHover text-pastel-text rounded-2xl py-3 text-2xl font-medium shadow-btn">0</button>
+            <button data-append="." class="cute-btn bg-pastel-btn hover:bg-pastel-btnHover text-pastel-text rounded-2xl py-3 text-2xl font-medium shadow-btn">.</button>
+            <button data-equals class="cute-btn bg-pastel-equal hover:bg-pink-500 text-white rounded-2xl py-3 text-2xl font-semibold shadow-[0_4px_0px_0px_rgba(225,29,72,0.4)] sparkle-hover">=</button>
+        </div>
+    </div>
+
+    <!-- Local Audio Placeholders -->
+    <audio id="fahh-audio" src="fahh.mp3" preload="auto"></audio>
+    <audio id="sparkle-audio" src="sparkle.mp3" preload="auto"></audio>
+    <audio id="click-audio" src="button.mp3" preload="auto"></audio>
+
+    <script>
+        const fahhAudio = document.getElementById('fahh-audio');
+        const sparkleAudio = document.getElementById('sparkle-audio');
+        const clickAudio = document.getElementById('click-audio');
+
+        function playClick() {
+            if (clickAudio) {
+                clickAudio.currentTime = 0;
+                clickAudio.play().catch(e => console.log("Audio play error:", e));
+            }
+        }
+
+        // Safe evaluation environment
+        function attemptEval(parsedStr) {
+            const mathScope = `
+                const sinDeg = (x) => Math.sin(x * Math.PI / 180);
+                const cosDeg = (x) => Math.cos(x * Math.PI / 180);
+                const tanDeg = (x) => Math.tan(x * Math.PI / 180);
+                return ${parsedStr};
+            `;
+            return new Function(mathScope)();
+        }
+
+        // Parses the string and handles missing closing parenthesis automatically
+        function evaluateExpression(expr) {
+            if (!expr) return null;
+            let parsed = expr.replace(/×/g, '*').replace(/÷/g, '/');
+            
+            // Fix implicit multiplication (e.g., 5sin -> 5*sin, 5π -> 5*π, 5( -> 5*(, )( -> )*(, )5 -> )*5)
+            parsed = parsed.replace(/([0-9)])(?=[a-zA-Zπ√\(])/g, '$1*');
+            parsed = parsed.replace(/\)(?=[0-9])/g, ')*');
+            
+            parsed = parsed.replace(/π/g, 'Math.PI').replace(/e/g, 'Math.E');
+            parsed = parsed.replace(/√\(/g, 'Math.sqrt(');
+            parsed = parsed.replace(/\^/g, '**');
+            parsed = parsed.replace(/log\(/g, 'Math.log10(');
+            parsed = parsed.replace(/ln\(/g, 'Math.log(');
+            parsed = parsed.replace(/sin\(/g, 'sinDeg(');
+            parsed = parsed.replace(/cos\(/g, 'cosDeg(');
+            parsed = parsed.replace(/tan\(/g, 'tanDeg(');
+            
+            let currentParsed = parsed;
+            // Attempt to compute; if it fails due to syntax (like missing ')'), append ')' and try again
+            for (let i = 0; i < 5; i++) {
+                try {
+                    return attemptEval(currentParsed);
+                } catch (e) {
+                    currentParsed += ')';
+                }
+            }
+            return null;
+        }
+
+        class Calculator {
+            constructor(previousOperandTextElement, currentOperandTextElement, equalsButton) {
+                this.previousOperandTextElement = previousOperandTextElement;
+                this.currentOperandTextElement = currentOperandTextElement;
+                this.equalsButton = equalsButton;
+                this.clear();
+            }
+
+            clear() {
+                this.expression = '';
+                this.guess = '';
+                this.mode = 'normal';
+                this.secretAnswer = null;
+                if (this.equalsButton) this.equalsButton.innerText = '=';
+                if (fahhAudio) {
+                    fahhAudio.pause();
+                    fahhAudio.currentTime = 0;
+                }
+                if (sparkleAudio) {
+                    sparkleAudio.pause();
+                    sparkleAudio.currentTime = 0;
+                }
+            }
+
+            delete() {
+                if (this.mode === 'result') {
+                    this.clear();
+                    return;
+                }
+                if (this.mode === 'guessing') {
+                    if (this.guess === 'FAHH') {
+                        this.guess = ''; // Clear error message to try again
+                    } else {
+                        this.guess = this.guess.toString().slice(0, -1);
+                    }
+                } else {
+                    // Smart delete for full function names
+                    if (this.expression.endsWith('sin(') || this.expression.endsWith('cos(') || this.expression.endsWith('tan(') || this.expression.endsWith('log(')) {
+                        this.expression = this.expression.slice(0, -4);
+                    } else if (this.expression.endsWith('ln(')) {
+                        this.expression = this.expression.slice(0, -3); // Fixed from -2 to -3 to properly remove 'ln('
+                    } else if (this.expression.endsWith('√(')) {
+                        this.expression = this.expression.slice(0, -2);
+                    } else {
+                        this.expression = this.expression.toString().slice(0, -1);
+                    }
+                }
+            }
+
+            append(value) {
+                if (this.mode === 'result') {
+                    this.clear();
+                }
+                
+                if (this.mode === 'guessing') {
+                    if (this.guess === 'FAHH') this.guess = ''; // Clear previous error text on new input
+                    
+                    // Only allow guessing with numbers and basic minus/decimal
+                    if (/^[0-9.-]$/.test(value)) {
+                        if (value === '.' && this.guess.includes('.')) return;
+                        if (value === '-' && this.guess !== '') return;
+                        this.guess += value;
+                    }
+                } else {
+                    if (this.expression === 'Error! 🎀') this.expression = '';
+                    
+                    // Prevent leading zeros issues when starting
+                    if (this.expression === '0' && value === '0') return;
+                    if (this.expression === '0' && /^[0-9]$/.test(value)) {
+                        this.expression = value;
+                        return;
+                    }
+                    
+                    this.expression += value;
+                }
+            }
+
+            compute() {
+                if (this.mode === 'guessing') {
+                    if (this.guess === '' || this.guess === 'FAHH') return; // Don't instantly fail if empty or currently showing FAHH
+
+                    const parsedGuess = parseFloat(this.guess);
+                    if (isNaN(parsedGuess) && this.guess !== '') return;
+                    
+                    // Allow exact match, or match up to 2 decimal places (both rounded and truncated)
+                    const roundedSecret = Math.round(this.secretAnswer * 100) / 100;
+                    const truncatedSecret = Math.trunc(this.secretAnswer * 100) / 100;
+                    
+                    if (parsedGuess === this.secretAnswer || parsedGuess === roundedSecret || parsedGuess === truncatedSecret) {
+                        this.guess = "Correct!";
+                        if (sparkleAudio) {
+                            sparkleAudio.currentTime = 0;
+                            sparkleAudio.play().catch(e => console.log("Audio play error:", e));
+                        }
+                        this.mode = 'result'; // Only exit guessing mode if they are right
+                        this.equalsButton.innerText = '=';
+                    } else {
+                        this.guess = "FAHH";
+                        if (fahhAudio) {
+                            fahhAudio.currentTime = 0;
+                            fahhAudio.play().catch(e => console.log("Audio play error:", e));
+                        }
+                        // We do NOT change this.mode to 'result' here, letting them try again!
+                    }
+                    return;
+                }
+
+                if (this.mode === 'result') {
+                    this.clear();
+                    return;
+                }
+
+                if (!this.expression) return;
+
+                const result = evaluateExpression(this.expression);
+                
+                // Show cute error on invalid math (e.g. 5+*)
+                if (result === null || isNaN(result) || !isFinite(result)) {
+                    this.expression = "Error! 🎀";
+                    setTimeout(() => {
+                        if (this.expression === "Error! 🎀") {
+                            this.clear();
+                            this.updateDisplay();
+                        }
+                    }, 1500);
+                    return;
+                }
+                
+                this.secretAnswer = Math.round(result * 100000000) / 100000000;
+                this.mode = 'guessing';
+                this.equalsButton.innerText = '✓';
+            }
+
+            updateDisplay() {
+                if (this.mode === 'guessing') {
+                    this.previousOperandTextElement.innerText = this.expression + ' = ?';
+                    this.currentOperandTextElement.innerText = this.guess || '';
+                } else if (this.mode === 'result') {
+                    this.previousOperandTextElement.innerText = this.expression + ' = ' + this.secretAnswer;
+                    this.currentOperandTextElement.innerText = this.guess;
+                } else {
+                    this.previousOperandTextElement.innerText = '';
+                    this.currentOperandTextElement.innerText = this.expression || '0';
+                }
+
+                // Cute pop animation
+                this.currentOperandTextElement.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    this.currentOperandTextElement.style.transform = 'scale(1)';
+                    this.currentOperandTextElement.style.transition = 'transform 0.1s ease';
+                }, 50);
+            }
+        }
+
+        const appendButtons = document.querySelectorAll('[data-append]');
+        const equalsButton = document.querySelector('[data-equals]');
+        const deleteButton = document.querySelector('[data-delete]');
+        const allClearButton = document.querySelector('[data-all-clear]');
+        const previousOperandTextElement = document.querySelector('[data-previous-operand]');
+        const currentOperandTextElement = document.querySelector('[data-current-operand]');
+
+        const calculator = new Calculator(previousOperandTextElement, currentOperandTextElement, equalsButton);
+
+        appendButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                playClick();
+                calculator.append(button.getAttribute('data-append'));
+                calculator.updateDisplay();
+            });
+        });
+
+        equalsButton.addEventListener('click', () => {
+            if (calculator.mode !== 'guessing') {
+                playClick();
+            }
+            calculator.compute();
+            calculator.updateDisplay();
+        });
+
+        allClearButton.addEventListener('click', () => {
+            playClick();
+            calculator.clear();
+            calculator.updateDisplay();
+        });
+
+        deleteButton.addEventListener('click', () => {
+            playClick();
+            calculator.delete();
+            calculator.updateDisplay();
+        });
+
+        // Keyboard Support updated for scientific input
+        document.addEventListener('keydown', (e) => {
+            if (/^[0-9.()+\-^]$/.test(e.key)) {
+                playClick();
+                calculator.append(e.key);
+                calculator.updateDisplay();
+            } else if (e.key === '*' || e.key === 'x') {
+                playClick();
+                calculator.append('×');
+                calculator.updateDisplay();
+            } else if (e.key === '/') {
+                e.preventDefault();
+                playClick();
+                calculator.append('÷');
+                calculator.updateDisplay();
+            } else if (e.key === '=' || e.key === 'Enter') {
+                e.preventDefault();
+                if (calculator.mode !== 'guessing') {
+                    playClick();
+                }
+                calculator.compute();
+                calculator.updateDisplay();
+            } else if (e.key === 'Backspace') {
+                playClick();
+                calculator.delete();
+                calculator.updateDisplay();
+            } else if (e.key === 'Escape') {
+                playClick();
+                calculator.clear();
+                calculator.updateDisplay();
+            }
+        });
+    </script>
+</body>
+</html>
